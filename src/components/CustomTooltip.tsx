@@ -3,8 +3,11 @@ import { formatMillions } from '../typesUtils/formatters';
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{ value: number; dataKey: string }>;
-  label?: string;
+  payload?: ReadonlyArray<{
+    value?: number | string | readonly (string | number)[];
+    dataKey?: number | string | ((obj: unknown) => unknown);
+  }>;
+  label?: number | string;
   currency: Moneda;
 }
 
@@ -22,10 +25,11 @@ export default function CustomTooltip({
       {payload.map((entry, i) => (
         <p key={i} className='text-sm'>
           <span className='text-slate-400'>
-            {entry.dataKey === 'portfolio' ? 'Portfolio' : 'Benchmark'}:{' '}
+            {String(entry.dataKey) === 'portfolio' ? 'Portfolio' : 'Benchmark'}
+            :{' '}
           </span>
           <span className='text-white font-medium'>
-            {formatMillions(entry.value, currency)}
+            {formatMillions(Number(entry.value ?? 0), currency)}
           </span>
         </p>
       ))}

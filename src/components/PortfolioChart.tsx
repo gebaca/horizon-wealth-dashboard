@@ -7,8 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import type { Moneda, PortfolioPoint } from '../typesUtils/types';
-
+import type { PortfolioPoint, Moneda } from '../typesUtils/types';
 import CustomTooltip from './CustomTooltip';
 
 interface PortfolioChartProps {
@@ -80,7 +79,16 @@ export default function PortfolioChart({
               tick={{ fill: '#64748b', fontSize: 12 }}
               tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`}
             />
-            <Tooltip content={<CustomTooltip currency={currency} />} />
+            <Tooltip
+              content={({ active, payload, label }) => (
+                <CustomTooltip
+                  active={active}
+                  payload={payload}
+                  label={label}
+                  currency={currency}
+                />
+              )}
+            />
             <Area
               type='monotone'
               dataKey='benchmark'
