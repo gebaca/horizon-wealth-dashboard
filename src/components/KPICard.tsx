@@ -18,9 +18,9 @@ export default function KPICard({
   trendValue,
 }: KPICardProps) {
   return (
-    <div className='bg-slate-800/50 border border-slate-700/50 rounded-lg p-5'>
+    <div className='bg-bg-card border border-border-base rounded-lg p-5'>
       <div className='flex items-center justify-between mb-3'>
-        <span className='text-slate-400 text-sm font-medium'>{title}</span>
+        <span className='text-text-secondary text-sm font-medium'>{title}</span>
         <div className='p-2 bg-slate-700/50 rounded-lg'>
           <Icon className='w-4 h-4 text-indigo-400' />
         </div>
@@ -28,16 +28,16 @@ export default function KPICard({
 
       <div className='flex items-end justify-between'>
         <div>
-          <p className='text-2xl font-semibold text-white'>{value}</p>
+          <p className='text-2xl font-semibold text-text-primary'>{value}</p>
           {subtitle && (
-            <p className='text-slate-500 text-xs mt-1'>{subtitle}</p>
+            <p className='text-text-muted text-xs mt-1'>{subtitle}</p>
           )}
         </div>
 
         {trend && trendValue && (
           <div
             className={`flex items-center gap-1 text-sm ${
-              trend === 'up' ? 'text-emerald-400' : 'text-red-400'
+              trend === 'up' ? 'text-success' : 'text-danger'
             }`}
           >
             {trend === 'up' ? (

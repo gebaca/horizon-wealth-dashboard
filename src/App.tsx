@@ -10,6 +10,9 @@ import {
   Droplets,
 } from 'lucide-react';
 
+// ─── hooks ───────────────────────────────────────────────────────────────────
+import { useCurrencyTheme } from './hook/Usecurrencytheme';
+
 // ─── Datos ───────────────────────────────────────────────────────────────────
 
 import {
@@ -48,10 +51,11 @@ export default function App() {
   const [currency, setCurrency] = useState<Moneda>('EUR');
   const [searchQuery, setSearchQuery] = useState('');
 
+  useCurrencyTheme(currency);
   const aum = convertCurrency(cliente.saldoTotal, currency);
 
   return (
-    <div className='flex h-screen bg-slate-900 text-white'>
+    <div className='flex h-screen bg-bg-primary text-text-primary'>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((v) => !v)}

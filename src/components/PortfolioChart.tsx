@@ -20,12 +20,14 @@ export default function PortfolioChart({
   currency,
 }: PortfolioChartProps) {
   return (
-    <div className='lg:col-span-2 bg-slate-800/50 border border-slate-700/50 rounded-lg p-5'>
+    <div className='lg:col-span-2 bg-bg-card border border-border-base rounded-lg p-5'>
       {/* Cabecera */}
       <div className='flex items-center justify-between mb-4'>
         <div>
-          <h3 className='text-white font-semibold'>Evolución del Portfolio</h3>
-          <p className='text-slate-500 text-sm'>
+          <h3 className='text-text-primary font-semibold'>
+            Evolución del Portfolio
+          </h3>
+          <p className='text-text-muted text-sm'>
             Rendimiento 12 meses vs. Benchmark
           </p>
         </div>
@@ -115,7 +117,7 @@ function LegendDot({ color, label }: { color: string; label: string }) {
   return (
     <div className='flex items-center gap-2'>
       <div className={`w-3 h-3 rounded-full ${color}`} />
-      <span className='text-slate-400'>{label}</span>
+      <span className='text-text-secondary'>{label}</span>
     </div>
   );
 }

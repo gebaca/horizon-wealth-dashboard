@@ -20,15 +20,15 @@ export default function CustomTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className='bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-xl'>
-      <p className='text-slate-400 text-xs mb-2'>{label}</p>
+    <div className='bg-bg-subtle border border-slate-700 rounded-lg p-3 shadow-xl'>
+      <p className='text-text-secondary text-xs mb-2'>{label}</p>
       {payload.map((entry, i) => (
         <p key={i} className='text-sm'>
-          <span className='text-slate-400'>
+          <span className='text-text-secondary'>
             {String(entry.dataKey) === 'portfolio' ? 'Portfolio' : 'Benchmark'}
             :{' '}
           </span>
-          <span className='text-white font-medium'>
+          <span className='text-text-primary font-medium'>
             {formatMillions(Number(entry.value ?? 0), currency)}
           </span>
         </p>

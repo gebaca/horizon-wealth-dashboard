@@ -11,14 +11,16 @@ export default function AssetAllocation({ data }: AssetAllocationProps) {
   const dataWithFill = data.map((item) => ({ ...item, fill: item.color }));
 
   return (
-    <div className='bg-slate-800/50 border border-slate-700/50 rounded-lg p-5'>
+    <div className='bg-bg-card border border-border-base rounded-lg p-5'>
       {/* Cabecera */}
       <div className='flex items-center justify-between mb-4'>
         <div>
-          <h3 className='text-white font-semibold'>Distribución de Activos</h3>
-          <p className='text-slate-500 text-sm'>Pesos actuales</p>
+          <h3 className='text-text-primary font-semibold'>
+            Distribución de Activos
+          </h3>
+          <p className='text-text-muted text-sm'>Pesos actuales</p>
         </div>
-        <PieIcon className='w-5 h-5 text-slate-500' />
+        <PieIcon className='w-5 h-5 text-text-muted' />
       </div>
 
       {/* Donut */}
@@ -51,7 +53,7 @@ export default function AssetAllocation({ data }: AssetAllocationProps) {
                 {item.name}
               </span>
             </div>
-            <span className='text-white font-medium text-sm'>
+            <span className='text-text-primary font-medium text-sm'>
               {item.value}%
             </span>
           </div>
