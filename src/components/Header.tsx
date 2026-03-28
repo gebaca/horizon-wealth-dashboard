@@ -13,40 +13,58 @@ export default function Header({
   onCurrencyChange,
 }: HeaderProps) {
   return (
-    <header className='h-16 bg-bg-primary border-b border-border-light flex items-center justify-between px-6'>
+    <header className='h-16 bg-bg-card border-b border-border-base flex items-center justify-between px-6'>
       {/* Título */}
       <div>
-        <h1 className='text-lg font-semibold'>{clientName}</h1>
+        <h1 className='text-lg font-semibold text-text-primary'>
+          {clientName}
+        </h1>
         <p className='text-text-muted text-sm'>Portfolio Overview</p>
       </div>
 
       <div className='flex items-center gap-4'>
-        {/* Toggle de divisa */}
-        <div className='flex items-center bg-bg-subtle rounded-lg p-1'>
-          {(['EUR', 'USD'] as Moneda[]).map((c) => (
-            <button
-              key={c}
-              onClick={() => onCurrencyChange(c)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                currency === c
-                  ? 'bg-accent text-text-primary'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {c === 'EUR' ? (
-                <Euro className='w-4 h-4' />
-              ) : (
-                <DollarSign className='w-4 h-4' />
-              )}
-              {c}
-            </button>
-          ))}
+        {/* ── Toggle deslizante EUR / USD ─────────────────────────────── */}
+        <div className='relative flex items-center w-41 h-9.5 bg-bg-subtle rounded-[10px] border border-border-base overflow-hidden'>
+          {/* Píldora deslizante — se mueve con transform según la divisa activa */}
+          <div
+            className='absolute top-0 left-0 h-full w-1/2 bg-accent rounded-[9px] transition-transform duration-300 ease-in-out'
+            style={{
+              transform:
+                currency === 'USD' ? 'translateX(100%)' : 'translateX(0)',
+            }}
+          />
+
+          {/* Botón EUR */}
+          <button
+            onClick={() => onCurrencyChange('EUR')}
+            className={`relative z-10 flex items-center justify-center gap-1.5 w-1/2 h-full text-sm font-medium transition-colors duration-250 ${
+              currency === 'EUR'
+                ? 'text-white'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            <Euro className='w-3.5 h-3.5' />
+            EUR
+          </button>
+
+          {/* Botón USD */}
+          <button
+            onClick={() => onCurrencyChange('USD')}
+            className={`relative z-10 flex items-center justify-center gap-1.5 w-1/2 h-full text-sm font-medium transition-colors duration-250 ${
+              currency === 'USD'
+                ? 'text-white'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            <DollarSign className='w-3.5 h-3.5' />
+            USD
+          </button>
         </div>
 
         {/* Notificaciones */}
         <button className='relative p-2 text-text-secondary hover:text-text-primary hover:bg-bg-subtle rounded-lg transition-colors'>
           <Bell className='w-5 h-5' />
-          <span className='absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full' />
+          <span className='absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full' />
         </button>
 
         {/* Más opciones */}
@@ -55,7 +73,7 @@ export default function Header({
         </button>
 
         {/* Avatar del gestor */}
-        <div className='w-9 h-9 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-sm font-medium'>
+        <div className='w-9 h-9 bg-accent rounded-full flex items-center justify-center text-sm font-medium text-white'>
           RM
         </div>
       </div>
