@@ -62,21 +62,9 @@
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ─── Variante USD ──────────────────────────────────────────────────────── */
+/* ─── Variante USD: solo cambia el fondo de página, sutil ──────────────── */
 :root.mode-usd {
-  --color-bg-primary: #07090e;
-  --color-bg-card: #0f1318;
-  --color-bg-subtle: #131820;
-
-  --color-border-base: #1e2535;
-  --color-border-light: #161d2c;
-
-  --color-accent: #2563eb;
-  --color-accent-muted: rgba(37, 99, 235, 0.18);
-
-  --color-text-primary: #cbd5e1;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #374151;
+  --color-bg-primary: #060810;
 }
 
 /* ─── Transición para elementos individuales ───────────────────────────── */

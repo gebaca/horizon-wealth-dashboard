@@ -16,6 +16,7 @@ export default function Sidebar({
       className={`${
         collapsed ? 'w-16' : 'w-64'
       } bg-slate-950 border-r border-border-light flex flex-col transition-all duration-300`}
+      style={{ transition: '300ms ease' }}
     >
       {/* Logo */}
       <div className='h-16 flex items-center px-4 border-b border-border-light'>
