@@ -1,230 +1,428 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useForm } from '@tanstack/react-form';
 import { gsap } from 'gsap';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  TrendingUp,
-  Users,
-  Plus,
-  Settings,
-  Trash2,
-} from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { useClientes } from '../context/ClienteContext';
+import type {
+  InversionForm,
+  NuevoClienteForm,
+  PerfilRiesgo,
+} from '../typesUtils/types';
 
-interface SidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-  onNuevoCliente: () => void;
+interface NuevoClientePanelProps {
+  abierto: boolean;
+  onCerrar: () => void;
 }
 
-export default function Sidebar({
-  collapsed,
-  onToggle,
-  onNuevoCliente,
-}: SidebarProps) {
-  const { clientes, clienteActivo, seleccionarCliente, eliminarCliente } =
-    useClientes();
-  const [clientesAbierto, setClientesAbierto] = useState(true);
-  const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
-  const listaRef = useRef<HTMLUListElement>(null);
-  const arrowRef = useRef<SVGSVGElement>(null);
-  const navigate = useNavigate();
+const PASOS = ['Datos personales', 'Perfil de riesgo', 'Saldo y activos'];
 
-  // ── Acordeón GSAP ────────────────────────────────────────────────────────
+const PERFILES: { valor: PerfilRiesgo; label: string; descripcion: string }[] =
+  [
+    {
+      valor: 'conservador',
+      label: 'Conservador',
+      descripcion: 'Prioriza la seguridad sobre la rentabilidad',
+    },
+    {
+      valor: 'moderado',
+      label: 'Moderado',
+      descripcion: 'Equilibrio entre riesgo y rentabilidad',
+    },
+    {
+      valor: 'agresivo',
+      label: 'Agresivo',
+      descripcion: 'Maximiza la rentabilidad asumiendo más riesgo',
+    },
+  ];
+
+export default function NuevoClientePanel({
+  abierto,
+  onCerrar,
+}: NuevoClientePanelProps) {
+  const { agregarCliente } = useClientes();
+  const [paso, setPaso] = useState(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+
+  // ── Animación de entrada/salida con GSAP ─────────────────────────────────
   useEffect(() => {
-    const lista = listaRef.current;
-    const arrow = arrowRef.current;
-    if (!lista || !arrow) return;
-    if (clientesAbierto) {
-      gsap.to(lista, {
-        height: 'auto',
-        opacity: 1,
-        duration: 0.35,
-        ease: 'power2.out',
-      });
-      gsap.to(arrow, { rotation: 0, duration: 0.25, ease: 'power2.out' });
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (!panel || !backdrop) return;
+
+    if (abierto) {
+      gsap.set(panel, { x: '100%' });
+      gsap.set(backdrop, { opacity: 0, pointerEvents: 'auto' });
+      gsap.to(panel, { x: '0%', duration: 0.45, ease: 'power3.out' });
+      gsap.to(backdrop, { opacity: 1, duration: 0.3 });
     } else {
-      gsap.to(lista, {
-        height: 0,
+      gsap.to(panel, { x: '100%', duration: 0.35, ease: 'power3.in' });
+      gsap.to(backdrop, {
         opacity: 0,
-        duration: 0.3,
-        ease: 'power2.in',
+        duration: 0.25,
+        pointerEvents: 'none',
+        onComplete: () => setPaso(0),
       });
-      gsap.to(arrow, { rotation: -90, duration: 0.25, ease: 'power2.in' });
     }
-  }, [clientesAbierto]);
+  }, [abierto]);
 
-  useEffect(() => {
-    if (collapsed) setClientesAbierto(false);
-  }, [collapsed]);
+  // ── Animación de transición entre pasos ──────────────────────────────────
+  const contenidoRef = useRef<HTMLDivElement>(null);
 
-  // ── Eliminar con animación GSAP en el elemento de la lista ───────────────
-  const handleEliminar = (id: string, liEl: HTMLLIElement) => {
-    gsap.to(liEl, {
-      opacity: 0,
-      x: -16,
-      height: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      duration: 0.3,
-      ease: 'power2.in',
-      onComplete: () => {
-        eliminarCliente(id);
-        setConfirmandoId(null);
-      },
-    });
+  const animarPaso = (siguiente: number) => {
+    const el = contenidoRef.current;
+    if (!el) {
+      setPaso(siguiente);
+      return;
+    }
+    const dir = siguiente > paso ? 1 : -1;
+    gsap.fromTo(
+      el,
+      { opacity: 0, x: 24 * dir },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.3,
+        ease: 'power2.out',
+        onStart: () => setPaso(siguiente),
+      }
+    );
   };
 
+  // ── TanStack Form ─────────────────────────────────────────────────────────
+  const form = useForm({
+    defaultValues: {
+      nombre: '',
+      email: '',
+      telefono: '',
+      perfilRiesgo: 'moderado' as PerfilRiesgo,
+      saldoTotal: 0,
+      inversiones: [{ nombre: '', valor: 0, tipo: '' }] as InversionForm[],
+    } satisfies NuevoClienteForm,
+    onSubmit: ({ value }) => {
+      agregarCliente(value);
+      onCerrar();
+    },
+  });
+
   return (
-    <aside
-      className={`${
-        collapsed ? 'w-16' : 'w-64'
-      } bg-bg-card border-r border-border-base flex flex-col transition-all duration-300`}
-    >
-      {/* Logo */}
-      <div className='h-16 flex items-center px-4 border-b border-border-base'>
-        {collapsed ? (
-          <div className='w-8 h-8 bg-accent rounded-lg flex items-center justify-center mx-auto'>
-            <TrendingUp className='w-5 h-5 text-white' />
-          </div>
-        ) : (
-          <div className='flex items-center gap-2'>
-            <div className='w-8 h-8 bg-accent rounded-lg flex items-center justify-center'>
-              <TrendingUp className='w-5 h-5 text-white' />
-            </div>
-            <span className='font-semibold text-lg text-text-primary'>
-              WealthView
-            </span>
-          </div>
-        )}
-      </div>
+    <>
+      {/* Backdrop */}
+      <div
+        ref={backdropRef}
+        onClick={onCerrar}
+        className='fixed inset-0 bg-black/50 z-40'
+        style={{ opacity: 0, pointerEvents: 'none' }}
+      />
 
-      {/* Nav */}
-      <nav className='flex-1 p-3 overflow-hidden'>
-        <div className='mb-1'>
+      {/* Panel */}
+      <div
+        ref={panelRef}
+        className='fixed top-0 right-0 h-full w-120 bg-bg-card border-l border-border-base z-50 flex flex-col'
+        style={{ transform: 'translateX(100%)' }}
+      >
+        {/* Cabecera */}
+        <div className='flex items-center justify-between px-6 py-5 border-b border-border-base'>
+          <div>
+            <h2 className='text-text-primary font-semibold text-lg'>
+              Nuevo cliente
+            </h2>
+            <p className='text-text-secondary text-sm mt-0.5'>
+              Paso {paso + 1} de {PASOS.length} — {PASOS[paso]}
+            </p>
+          </div>
           <button
-            onClick={() => !collapsed && setClientesAbierto((v) => !v)}
-            className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors'
+            onClick={onCerrar}
+            className='p-2 text-text-secondary hover:text-text-primary hover:bg-bg-subtle rounded-lg transition-colors'
           >
-            <Users className='w-5 h-5 shrink-0' />
-            {!collapsed && (
-              <>
-                <span className='text-sm font-medium flex-1 text-left'>
-                  Clientes
-                </span>
-                <ChevronDown ref={arrowRef} className='w-4 h-4 shrink-0' />
-              </>
-            )}
+            <X className='w-5 h-5' />
           </button>
+        </div>
 
-          {!collapsed && (
-            <ul
-              ref={listaRef}
-              className='overflow-hidden pl-3'
-              style={{ height: 'auto', opacity: 1 }}
-            >
-              {clientes.map((c) => (
-                <li key={c.id} className='group'>
-                  {confirmandoId === c.id ? (
-                    /* ── Estado de confirmación ── */
-                    <div className='flex items-center gap-1 px-3 py-2 rounded-lg bg-danger/10 border border-danger/20'>
-                      <span className='text-xs text-danger flex-1'>
-                        ¿Eliminar?
-                      </span>
+        {/* Indicador de pasos */}
+        <div className='flex gap-1.5 px-6 py-4'>
+          {PASOS.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+                i <= paso ? 'bg-accent' : 'bg-border-base'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Contenido del paso */}
+        <div ref={contenidoRef} className='flex-1 overflow-y-auto px-6 py-2'>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+          >
+            {/* ── Paso 0: Datos personales ── */}
+            {paso === 0 && (
+              <div className='space-y-5'>
+                <form.Field
+                  name='nombre'
+                  validators={{
+                    onChange: ({ value }) =>
+                      !value ? 'El nombre es obligatorio' : undefined,
+                  }}
+                >
+                  {(field) => (
+                    <Campo
+                      label='Nombre completo'
+                      error={field.state.meta.errors[0]}
+                    >
+                      <input
+                        className={inputClass}
+                        placeholder='Ej: María García López'
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </Campo>
+                  )}
+                </form.Field>
+
+                <form.Field
+                  name='email'
+                  validators={{
+                    onChange: ({ value }) =>
+                      !value.includes('@') ? 'Email no válido' : undefined,
+                  }}
+                >
+                  {(field) => (
+                    <Campo label='Email' error={field.state.meta.errors[0]}>
+                      <input
+                        className={inputClass}
+                        type='email'
+                        placeholder='cliente@ejemplo.com'
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </Campo>
+                  )}
+                </form.Field>
+
+                <form.Field name='telefono'>
+                  {(field) => (
+                    <Campo label='Teléfono'>
+                      <input
+                        className={inputClass}
+                        placeholder='+34 600 000 000'
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </Campo>
+                  )}
+                </form.Field>
+              </div>
+            )}
+
+            {/* ── Paso 1: Perfil de riesgo ── */}
+            {paso === 1 && (
+              <form.Field name='perfilRiesgo'>
+                {(field) => (
+                  <div className='space-y-3'>
+                    {PERFILES.map((p) => (
                       <button
-                        onClick={(e) =>
-                          handleEliminar(
-                            c.id,
-                            e.currentTarget.closest('li') as HTMLLIElement
-                          )
-                        }
-                        className='text-xs text-danger font-medium hover:brightness-125 transition-all'
-                      >
-                        Sí
-                      </button>
-                      <span className='text-danger/40 text-xs'>·</span>
-                      <button
-                        onClick={() => setConfirmandoId(null)}
-                        className='text-xs text-text-secondary hover:text-text-primary transition-colors'
-                      >
-                        No
-                      </button>
-                    </div>
-                  ) : (
-                    /* ── Estado normal ── */
-                    <div className='flex items-center gap-1'>
-                      <button
-                        onClick={() => {
-                          seleccionarCliente(c.id);
-                          navigate({ to: '/dashboard' });
-                        }}
-                        className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                          clienteActivo.id === c.id
-                            ? 'bg-accent/15 text-accent font-medium'
-                            : 'text-text-secondary hover:bg-bg-subtle hover:text-text-primary'
+                        key={p.valor}
+                        type='button'
+                        onClick={() => field.handleChange(p.valor)}
+                        className={`w-full text-left px-4 py-4 rounded-lg border transition-all duration-200 ${
+                          field.state.value === p.valor
+                            ? 'border-accent bg-accent/10 text-text-primary'
+                            : 'border-border-base bg-bg-subtle text-text-secondary hover:border-accent/50'
                         }`}
                       >
-                        <span className='w-6 h-6 rounded-full bg-bg-subtle border border-border-base flex items-center justify-center text-xs font-semibold shrink-0'>
-                          {c.nombre.charAt(0)}
-                        </span>
-                        <span className='truncate'>
-                          {c.nombre.split(' ')[0]}
-                        </span>
+                        <div className='flex items-center justify-between'>
+                          <span className='font-medium text-sm'>{p.label}</span>
+                          {field.state.value === p.valor && (
+                            <Check className='w-4 h-4 text-accent' />
+                          )}
+                        </div>
+                        <p className='text-xs mt-1 text-text-muted'>
+                          {p.descripcion}
+                        </p>
                       </button>
+                    ))}
+                  </div>
+                )}
+              </form.Field>
+            )}
 
-                      {/* Botón eliminar — solo visible en hover */}
+            {/* ── Paso 2: Saldo y activos ── */}
+            {paso === 2 && (
+              <div className='space-y-5'>
+                <form.Field
+                  name='saldoTotal'
+                  validators={{
+                    onChange: ({ value }) =>
+                      value <= 0 ? 'El saldo debe ser mayor a 0' : undefined,
+                  }}
+                >
+                  {(field) => (
+                    <Campo
+                      label='Saldo total (€)'
+                      error={field.state.meta.errors[0]}
+                    >
+                      <input
+                        className={inputClass}
+                        type='number'
+                        placeholder='1000000'
+                        value={field.state.value || ''}
+                        onChange={(e) =>
+                          field.handleChange(Number(e.target.value))
+                        }
+                      />
+                    </Campo>
+                  )}
+                </form.Field>
+
+                <form.Field name='inversiones'>
+                  {(field) => (
+                    <div className='space-y-3'>
+                      <label className='text-text-secondary text-sm font-medium block'>
+                        Distribución de activos
+                      </label>
+                      {field.state.value.map((inv, i) => (
+                        <div key={i} className='space-y-2'>
+                          <div className='flex gap-2'>
+                            <input
+                              className={`${inputClass} flex-1`}
+                              placeholder='Nombre del activo'
+                              value={inv.nombre}
+                              onChange={(e) => {
+                                const next = [...field.state.value];
+                                next[i] = {
+                                  ...next[i],
+                                  nombre: e.target.value,
+                                };
+                                field.handleChange(next);
+                              }}
+                            />
+                            <input
+                              className={`${inputClass} w-28`}
+                              type='number'
+                              placeholder='€'
+                              value={inv.valor || ''}
+                              onChange={(e) => {
+                                const next = [...field.state.value];
+                                next[i] = {
+                                  ...next[i],
+                                  valor: Number(e.target.value),
+                                };
+                                field.handleChange(next);
+                              }}
+                            />
+                          </div>
+                          {/* Selector de tipo */}
+                          <select
+                            className={inputClass}
+                            value={inv.tipo ?? ''}
+                            onChange={(e) => {
+                              const next = [...field.state.value];
+                              next[i] = { ...next[i], tipo: e.target.value };
+                              field.handleChange(next);
+                            }}
+                          >
+                            <option value='' disabled>
+                              Tipo de activo...
+                            </option>
+                            <option value='renta_variable'>
+                              Renta variable
+                            </option>
+                            <option value='renta_fija'>
+                              Renta fija / Bonos
+                            </option>
+                            <option value='capital_privado'>
+                              Capital privado
+                            </option>
+                            <option value='etf'>ETF</option>
+                            <option value='materias_primas'>
+                              Materias primas
+                            </option>
+                            <option value='inmobiliario'>Inmobiliario</option>
+                            <option value='liquidez'>
+                              Liquidez / Efectivo
+                            </option>
+                          </select>
+                        </div>
+                      ))}
                       <button
-                        onClick={() => setConfirmandoId(c.id)}
-                        className='opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 shrink-0'
-                        title='Eliminar cliente'
+                        type='button'
+                        onClick={() =>
+                          field.handleChange([
+                            ...field.state.value,
+                            { nombre: '', valor: 0, tipo: '' },
+                          ])
+                        }
+                        className='text-accent text-sm hover:underline'
                       >
-                        <Trash2 className='w-3.5 h-3.5' />
+                        + Añadir activo
                       </button>
                     </div>
                   )}
-                </li>
-              ))}
-
-              <li>
-                <button
-                  onClick={onNuevoCliente}
-                  className='w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-text-muted hover:text-accent hover:bg-accent/10 transition-colors'
-                >
-                  <Plus className='w-4 h-4 shrink-0' />
-                  <span>Nuevo cliente</span>
-                </button>
-              </li>
-            </ul>
-          )}
+                </form.Field>
+              </div>
+            )}
+          </form>
         </div>
 
-        {/* Opciones */}
-        <button className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors mt-1'>
-          <Settings className='w-5 h-5 shrink-0' />
-          {!collapsed && <span className='text-sm font-medium'>Opciones</span>}
-        </button>
-      </nav>
+        {/* Footer con navegación */}
+        <div className='px-6 py-5 border-t border-border-base flex justify-between'>
+          <button
+            onClick={() => (paso > 0 ? animarPaso(paso - 1) : onCerrar())}
+            className='flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-bg-subtle transition-colors'
+          >
+            <ChevronLeft className='w-4 h-4' />
+            {paso === 0 ? 'Cancelar' : 'Anterior'}
+          </button>
 
-      {/* Colapsar */}
-      <div className='p-3 border-t border-border-base'>
-        <button
-          onClick={onToggle}
-          className='w-full flex items-center justify-center gap-2 px-3 py-2 text-text-secondary hover:text-text-primary hover:bg-bg-subtle rounded-lg transition-colors'
-        >
-          {collapsed ? (
-            <ChevronRight className='w-5 h-5' />
+          {paso < PASOS.length - 1 ? (
+            <button
+              onClick={() => animarPaso(paso + 1)}
+              className='flex items-center gap-2 px-5 py-2 rounded-lg text-sm bg-accent text-white hover:brightness-110 transition-all'
+            >
+              Siguiente
+              <ChevronRight className='w-4 h-4' />
+            </button>
           ) : (
-            <>
-              <ChevronLeft className='w-5 h-5' />
-              <span className='text-sm'>Colapsar</span>
-            </>
+            <button
+              onClick={() => form.handleSubmit()}
+              className='flex items-center gap-2 px-5 py-2 rounded-lg text-sm bg-accent text-white hover:brightness-110 transition-all'
+            >
+              <Check className='w-4 h-4' />
+              Guardar cliente
+            </button>
           )}
-        </button>
+        </div>
       </div>
-    </aside>
+    </>
+  );
+}
+
+// ── Componentes auxiliares ───────────────────────────────────────────────────
+
+const inputClass =
+  'w-full bg-bg-subtle border border-border-base rounded-lg px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-colors';
+
+function Campo({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className='space-y-1.5'>
+      <label className='text-text-secondary text-sm font-medium block'>
+        {label}
+      </label>
+      {children}
+      {error && <p className='text-danger text-xs'>{error}</p>}
+    </div>
   );
 }

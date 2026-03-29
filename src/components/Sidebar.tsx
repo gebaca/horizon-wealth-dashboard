@@ -28,7 +28,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const { clientes, clienteActivo, seleccionarCliente, eliminarCliente } =
     useClientes();
-  const [clientesAbierto, setClientesAbierto] = useState(true);
+  const [clientesAbierto, setClientesAbierto] = useState(!collapsed);
   const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
   const listaRef = useRef<HTMLUListElement>(null);
   const arrowRef = useRef<SVGSVGElement>(null);
@@ -57,10 +57,6 @@ export default function Sidebar({
       gsap.to(arrow, { rotation: -90, duration: 0.25, ease: 'power2.in' });
     }
   }, [clientesAbierto]);
-
-  useEffect(() => {
-    if (collapsed) setClientesAbierto(false);
-  }, [collapsed]);
 
   // ── Eliminar con animación GSAP en el elemento de la lista ───────────────
   const handleEliminar = (id: string, liEl: HTMLLIElement) => {
@@ -98,7 +94,7 @@ export default function Sidebar({
               <TrendingUp className='w-5 h-5 text-white' />
             </div>
             <span className='font-semibold text-lg text-text-primary'>
-              WealthView
+              WealthWatcher
             </span>
           </div>
         )}
@@ -108,7 +104,10 @@ export default function Sidebar({
       <nav className='flex-1 p-3 overflow-hidden'>
         <div className='mb-1'>
           <button
-            onClick={() => !collapsed && setClientesAbierto((v) => !v)}
+            onClick={() => {
+              if (!collapsed) setClientesAbierto(false); // cierra el acordeón al colapsar
+              onToggle();
+            }}
             className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors'
           >
             <Users className='w-5 h-5 shrink-0' />

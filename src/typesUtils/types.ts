@@ -4,6 +4,7 @@ export interface Inversion {
   nombre: string;
   valor: number;
   ganancia: number;
+  tipo?: string;
 }
 
 export interface DatoRendimiento {
@@ -22,7 +23,7 @@ export interface ClienteBancaPrivada {
   saldoTotal: number;
   inversiones: Inversion[];
   rendimientoMensual: DatoRendimiento[];
-  creadoEn: string; // ISO date string
+  creadoEn: string;
 }
 
 // ─── Tipos de la UI ─────────────────────────────────────────────────────────
@@ -58,14 +59,17 @@ export interface NavItem {
 
 // ─── Tipos del formulario de nuevo cliente ───────────────────────────────────
 
+export interface InversionForm {
+  nombre: string;
+  valor: number;
+  tipo: string;
+}
+
 export interface NuevoClienteForm {
-  // Paso 1 — datos personales
   nombre: string;
   email: string;
   telefono: string;
-  // Paso 2 — perfil de riesgo
   perfilRiesgo: PerfilRiesgo;
-  // Paso 3 — saldo y activos
   saldoTotal: number;
-  inversiones: Omit<Inversion, 'ganancia'>[];
+  inversiones: InversionForm[];
 }
