@@ -1,5 +1,5 @@
 import { Bell, DollarSign, Euro, MoreHorizontal } from 'lucide-react';
-import type { Moneda } from '../typesUtils/types';
+import type { Moneda } from '../typesUtils/types.ts';
 
 interface HeaderProps {
   clientName: string;

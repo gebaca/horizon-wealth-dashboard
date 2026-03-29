@@ -2,23 +2,23 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { TrendingUp, Wallet, ShieldAlert, Droplets } from 'lucide-react';
 
-import { useCurrencyTheme } from './hook/Usecurrencytheme';
-import { useClientes } from './context/ClienteContext';
-import { formatMillions, convertCurrency } from './typesUtils/formatters';
+import { useCurrencyTheme } from './hook/Usecurrencytheme.ts';
+import { useClientes } from './hook/useClientes.ts';
+import { formatMillions, convertCurrency } from './typesUtils/formatters.ts';
 import {
   portfolioChartDataDesde,
   assetAllocationDataDesde,
   holdingsDataDesde,
-} from './mock/Clienteprivado';
-import type { Moneda } from './typesUtils/types';
+} from './mock/Clienteprivado.ts';
+import type { Moneda } from './typesUtils/types.ts';
 
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
-import KPICard from './components/KPICard';
-import PortfolioChart from './components/PortfolioChart';
-import AssetAllocation from './components/AssetAllocation';
-import HoldingsTable from './components/HoldingsTable';
-import NuevoClientePanel from './components/NuevoClientePanel';
+import Sidebar from './components/Sidebar.tsx';
+import Header from './components/Header.tsx';
+import KPICard from './components/KPICard.tsx';
+import PortfolioChart from './components/PortfolioChart.tsx';
+import AssetAllocation from './components/AssetAllocation.tsx';
+import HoldingsTable from './components/HoldingsTable.tsx';
+import NuevoClientePanel from './components/Nuevoclientepanel.tsx';
 
 export default function App() {
   const { clienteActivo } = useClientes();

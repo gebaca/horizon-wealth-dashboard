@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { gsap } from 'gsap';
@@ -13,7 +11,7 @@ import {
   Settings,
   Trash2,
 } from 'lucide-react';
-import { useClientes } from '../context/ClienteContext';
+import { useClientes } from '../hook/useClientes.ts';
 
 interface SidebarProps {
   collapsed: boolean;

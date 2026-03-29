@@ -7,10 +7,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import type { PortfolioPoint, Moneda } from '../typesUtils/types';
-import CustomTooltip from './CustomTooltip';
-import SkeletonLoader from '../anims/Skeletonloader';
-import { useChartReady } from '../hook/Usechartready';
+import type { PortfolioPoint, Moneda } from '../typesUtils/types.ts';
+import CustomTooltip from './CustomTooltip.tsx';
+import SkeletonLoader from '../anims/Skeletonloader.tsx';
+import { useChartReady } from '../hook/Usechartready.ts';
 
 interface PortfolioChartProps {
   data: PortfolioPoint[];

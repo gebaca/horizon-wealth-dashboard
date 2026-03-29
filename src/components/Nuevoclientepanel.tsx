@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { gsap } from 'gsap';
 import { X, ChevronRight, ChevronLeft, Check } from 'lucide-react';
-import { useClientes } from '../context/ClienteContext';
+import { useClientes } from '../hook/useClientes.ts';
 import type {
   InversionForm,
   NuevoClienteForm,
   PerfilRiesgo,
-} from '../typesUtils/types';
+} from '../typesUtils/types.ts';
 
 interface NuevoClientePanelProps {
   abierto: boolean;

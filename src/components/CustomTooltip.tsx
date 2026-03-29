@@ -1,5 +1,5 @@
-import type { Moneda } from '../typesUtils/types';
-import { formatMillions } from '../typesUtils/formatters';
+import type { Moneda } from '../typesUtils/types.ts';
+import { formatMillions } from '../typesUtils/formatters.ts';
 
 interface CustomTooltipProps {
   active?: boolean;

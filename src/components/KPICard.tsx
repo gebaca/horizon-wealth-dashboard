@@ -1,4 +1,4 @@
-import { useAnimatedNumber } from '../hook/Useanimatednumber';
+import { useAnimatedNumber } from '../hook/Useanimatednumber.ts';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface KPICardProps {

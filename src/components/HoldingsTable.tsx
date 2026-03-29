@@ -1,6 +1,6 @@
 import { Search, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import type { Holding, Moneda } from '../typesUtils/types';
-import { formatCurrency, convertCurrency } from '../typesUtils/formatters';
+import type { Holding, Moneda } from '../typesUtils/types.ts';
+import { formatCurrency, convertCurrency } from '../typesUtils/formatters.ts';
 
 interface HoldingsTableProps {
   holdings: Holding[];
