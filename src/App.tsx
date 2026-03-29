@@ -1,81 +1,78 @@
-import { useState } from 'react';
-import {
-  LayoutDashboard,
-  Users,
-  TrendingUp,
-  FileText,
-  Settings,
-  Wallet,
-  ShieldAlert,
-  Droplets,
-} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { TrendingUp, Wallet, ShieldAlert, Droplets } from 'lucide-react';
 
-// ─── hooks ───────────────────────────────────────────────────────────────────
 import { useCurrencyTheme } from './hook/Usecurrencytheme';
-
-// ─── Datos ───────────────────────────────────────────────────────────────────
-
-import {
-  cliente,
-  portfolioChartData,
-  assetAllocationData,
-  holdingsData,
-} from './mock/Clienteprivado';
-
-// ─── Tipos ───────────────────────────────────────────────────────────────────
-import type { Moneda, NavItem } from './typesUtils/types';
-
-// ─── Utilidades ──────────────────────────────────────────────────────────────
+import { useClientes } from './context/ClienteContext';
 import { formatMillions, convertCurrency } from './typesUtils/formatters';
+import {
+  portfolioChartDataDesde,
+  assetAllocationDataDesde,
+  holdingsDataDesde,
+} from './mock/Clienteprivado';
+import type { Moneda } from './typesUtils/types';
 
-// ─── Componentes ─────────────────────────────────────────────────────────────
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import KPICard from './components/KPICard';
 import PortfolioChart from './components/PortfolioChart';
 import AssetAllocation from './components/AssetAllocation';
 import HoldingsTable from './components/HoldingsTable';
+import NuevoClientePanel from './components/NuevoClientePanel';
 
-// ─── Configuración de navegación ─────────────────────────────────────────────
-const NAV_ITEMS: NavItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard', active: true },
-  { icon: Users, label: 'Clients', active: false },
-  { icon: TrendingUp, label: 'Market Analysis', active: false },
-  { icon: FileText, label: 'Reports', active: false },
-  { icon: Settings, label: 'Settings', active: false },
-];
-
-// ─── App ─────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { clienteActivo } = useClientes();
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currency, setCurrency] = useState<Moneda>('EUR');
   const [searchQuery, setSearchQuery] = useState('');
+  const [panelAbierto, setPanelAbierto] = useState(false);
 
   useCurrencyTheme(currency);
-  const aum = convertCurrency(cliente.saldoTotal, currency);
+
+  // ── Transición GSAP al cambiar de cliente ─────────────────────────────────
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const prevClienteId = useRef(clienteActivo.id);
+
+  useEffect(() => {
+    if (prevClienteId.current === clienteActivo.id) return;
+    prevClienteId.current = clienteActivo.id;
+    const el = dashboardRef.current;
+    if (!el) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+    );
+  }, [clienteActivo.id]);
+
+  const aum = convertCurrency(clienteActivo.saldoTotal, currency);
+  const portfolioData = portfolioChartDataDesde(clienteActivo);
+  const allocationData = assetAllocationDataDesde(clienteActivo);
+  const holdings = holdingsDataDesde(clienteActivo);
 
   return (
     <div className='flex h-screen bg-bg-primary text-text-primary'>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((v) => !v)}
-        navItems={NAV_ITEMS}
+        onNuevoCliente={() => setPanelAbierto(true)}
       />
 
       <main className='flex-1 flex flex-col overflow-hidden'>
         <Header
-          clientName={cliente.nombre}
+          clientName={clienteActivo.nombre}
           currency={currency}
           onCurrencyChange={setCurrency}
         />
 
-        <div className='flex-1 overflow-auto p-6 space-y-6'>
-          {/* KPIs */}
+        <div ref={dashboardRef} className='flex-1 overflow-auto p-6 space-y-6'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             <KPICard
               title='AUM Total'
               value={formatMillions(aum, currency)}
-              subtitle={`${cliente.inversiones.length} posiciones`}
+              rawValue={aum}
+              subtitle={`${clienteActivo.inversiones.length} posiciones`}
               icon={Wallet}
               trend='up'
               trendValue='+12.4%'
@@ -90,33 +87,43 @@ export default function App() {
             />
             <KPICard
               title='Puntuación de Riesgo'
-              value='6 / 10'
-              subtitle='Moderado-Alto'
+              value={perfilARiesgo(clienteActivo.perfilRiesgo)}
+              subtitle={clienteActivo.perfilRiesgo}
               icon={ShieldAlert}
             />
             <KPICard
               title='Ratio de Liquidez'
               value='18.2%'
-              subtitle={`${formatMillions(convertCurrency(4_513_600, currency), currency)} disponible`}
+              subtitle={`${formatMillions(convertCurrency(clienteActivo.saldoTotal * 0.182, currency), currency)} disponible`}
               icon={Droplets}
             />
           </div>
 
-          {/* Gráficos */}
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-            <PortfolioChart data={portfolioChartData} currency={currency} />
-            <AssetAllocation data={assetAllocationData} />
+            <PortfolioChart data={portfolioData} currency={currency} />
+            <AssetAllocation data={allocationData} />
           </div>
 
-          {/* Tabla de posiciones */}
           <HoldingsTable
-            holdings={holdingsData}
+            holdings={holdings}
             currency={currency}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
         </div>
       </main>
+
+      <NuevoClientePanel
+        abierto={panelAbierto}
+        onCerrar={() => setPanelAbierto(false)}
+      />
     </div>
+  );
+}
+
+function perfilARiesgo(perfil: string): string {
+  return (
+    { conservador: '3 / 10', moderado: '6 / 10', agresivo: '9 / 10' }[perfil] ??
+    '6 / 10'
   );
 }

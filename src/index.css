@@ -64,7 +64,19 @@
 
 /* ─── Variante USD: solo cambia el fondo de página, sutil ──────────────── */
 :root.mode-usd {
-  --color-bg-primary: #060810;
+  --color-bg-primary: #0b1413;
+  --color-bg-card: #162222;
+  --color-bg-subtle: #1c3333;
+
+  --color-border-base: #2a3e42;
+  --color-border-light: #1e3536;
+
+  --color-accent: #3bdaf6;
+  --color-accent-muted: rgba(59, 224, 246, 0.15);
+
+  --color-text-primary: #f1f8f9;
+  --color-text-secondary: #94b7b8;
+  --color-text-muted: #4b6163;
 }
 
 /* ─── Transición para elementos individuales ───────────────────────────── */

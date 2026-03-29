@@ -84,7 +84,6 @@ export default function Sidebar({
       className={`${
         collapsed ? 'w-16' : 'w-64'
       } bg-bg-card border-r border-border-base flex flex-col transition-all duration-300`}
-      style={{ transition: '0.3s' }}
     >
       {/* Logo */}
       <div className='h-16 flex items-center px-4 border-b border-border-base'>
@@ -221,7 +220,7 @@ export default function Sidebar({
           ) : (
             <>
               <ChevronLeft className='w-5 h-5' />
-              <span className='text-sm'>Hide</span>
+              <span className='text-sm'>Colapsar</span>
             </>
           )}
         </button>
