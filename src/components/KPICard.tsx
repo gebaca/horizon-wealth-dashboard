@@ -9,6 +9,7 @@ interface KPICardProps {
   trend?: 'up' | 'down';
   trendValue?: string;
   rawValue?: number;
+  classNameBanco?: string;
 }
 
 export default function KPICard({
@@ -19,11 +20,14 @@ export default function KPICard({
   trend,
   trendValue,
   rawValue,
+  classNameBanco,
 }: KPICardProps) {
   const animated = useAnimatedNumber(rawValue ?? 0);
 
   return (
-    <div className='bg-bg-card border border-border-base rounded-lg p-5'>
+    <div
+      className={`bg-bg-card border border-border-base rounded-lg p-5 ${classNameBanco || ''}`}
+    >
       <div className='flex items-center justify-between mb-3'>
         <span className='text-text-secondary text-sm font-medium'>{title}</span>
         <div className='p-2 bg-bg-subtle rounded-lg'>

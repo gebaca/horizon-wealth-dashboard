@@ -1,5 +1,7 @@
 import { Bell, DollarSign, Euro, MoreHorizontal } from 'lucide-react';
-import type { Moneda } from '../typesUtils/types.ts';
+import type { Moneda } from '../typesUtils/types';
+import BancoSelector from './BancoSelector';
+import { useBancoTransicion } from '../hook/Usebancotransicion ';
 
 interface HeaderProps {
   clientName: string;
@@ -12,6 +14,8 @@ export default function Header({
   currency,
   onCurrencyChange,
 }: HeaderProps) {
+  const cambiarBanco = useBancoTransicion();
+
   return (
     <header className='h-16 bg-bg-card border-b border-border-base flex items-center justify-between px-6'>
       {/* Título */}
@@ -23,9 +27,11 @@ export default function Header({
       </div>
 
       <div className='flex items-center gap-4'>
-        {/* ── Toggle deslizante EUR / USD ─────────────────────────────── */}
+        {/* Selector de banco */}
+        <BancoSelector onCambio={cambiarBanco} />
+
+        {/* Toggle EUR / USD */}
         <div className='relative flex items-center w-41 h-9.5 bg-bg-subtle rounded-[10px] border border-border-base overflow-hidden'>
-          {/* Píldora deslizante — se mueve con transform según la divisa activa */}
           <div
             className='absolute top-0 left-0 h-full w-1/2 bg-accent rounded-[9px] transition-transform duration-300 ease-in-out'
             style={{
@@ -33,8 +39,6 @@ export default function Header({
                 currency === 'USD' ? 'translateX(100%)' : 'translateX(0)',
             }}
           />
-
-          {/* Botón EUR */}
           <button
             onClick={() => onCurrencyChange('EUR')}
             className={`relative z-10 flex items-center justify-center gap-1.5 w-1/2 h-full text-sm font-medium transition-colors duration-250 ${
@@ -46,8 +50,6 @@ export default function Header({
             <Euro className='w-3.5 h-3.5' />
             EUR
           </button>
-
-          {/* Botón USD */}
           <button
             onClick={() => onCurrencyChange('USD')}
             className={`relative z-10 flex items-center justify-center gap-1.5 w-1/2 h-full text-sm font-medium transition-colors duration-250 ${
@@ -72,7 +74,7 @@ export default function Header({
           <MoreHorizontal className='w-5 h-5' />
         </button>
 
-        {/* Avatar del gestor */}
+        {/* Avatar */}
         <div className='w-9 h-9 bg-accent rounded-full flex items-center justify-center text-sm font-medium text-white'>
           RM
         </div>

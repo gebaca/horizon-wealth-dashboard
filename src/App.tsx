@@ -69,6 +69,7 @@ export default function App() {
         <div ref={dashboardRef} className='flex-1 overflow-auto p-6 space-y-6'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             <KPICard
+              classNameBanco='banco-card'
               title='AUM Total'
               value={formatMillions(aum, currency)}
               rawValue={aum}
@@ -78,6 +79,7 @@ export default function App() {
               trendValue='+12.4%'
             />
             <KPICard
+              classNameBanco='banco-card'
               title='Rentabilidad YTD'
               value='+15.3%'
               subtitle='vs. +11.4% benchmark'
@@ -86,12 +88,14 @@ export default function App() {
               trendValue='+3.9%'
             />
             <KPICard
+              classNameBanco='banco-card'
               title='Puntuación de Riesgo'
               value={perfilARiesgo(clienteActivo.perfilRiesgo)}
               subtitle={clienteActivo.perfilRiesgo}
               icon={ShieldAlert}
             />
             <KPICard
+              classNameBanco='banco-card'
               title='Ratio de Liquidez'
               value='18.2%'
               subtitle={`${formatMillions(convertCurrency(clienteActivo.saldoTotal * 0.182, currency), currency)} disponible`}
@@ -99,12 +103,13 @@ export default function App() {
             />
           </div>
 
-          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 banco-card'>
             <PortfolioChart data={portfolioData} currency={currency} />
             <AssetAllocation data={allocationData} />
           </div>
 
           <HoldingsTable
+            classNameBanco='banco-card'
             holdings={holdings}
             currency={currency}
             searchQuery={searchQuery}

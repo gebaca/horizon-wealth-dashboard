@@ -7,6 +7,7 @@ interface HoldingsTableProps {
   currency: Moneda;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  classNameBanco?: string;
 }
 
 const RISK_CLASSES: Record<string, string> = {
@@ -20,6 +21,7 @@ export default function HoldingsTable({
   currency,
   searchQuery,
   onSearchChange,
+  classNameBanco,
 }: HoldingsTableProps) {
   const filtered = holdings.filter(
     (h) =>
@@ -28,7 +30,9 @@ export default function HoldingsTable({
   );
 
   return (
-    <div className='bg-bg-card border border-border-base rounded-lg'>
+    <div
+      className={`bg-bg-card border border-border-base rounded-lg ${classNameBanco || ''}`}
+    >
       {/* Cabecera */}
       <div className='p-5 border-b border-border-base'>
         <div className='flex items-center justify-between'>
