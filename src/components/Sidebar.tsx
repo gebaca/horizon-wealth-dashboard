@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { gsap } from 'gsap';
@@ -5,13 +7,14 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  TrendingUp,
   Users,
   Plus,
   Settings,
   Trash2,
 } from 'lucide-react';
-import { useClientes } from '../hook/useClientes.ts';
+import { useClientes } from '../hook/useClientes';
+import { useBanco } from '../context/Usebanco';
+import { BancoLogoSm, BancoLogoLg } from './BancoSelector';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -26,11 +29,13 @@ export default function Sidebar({
 }: SidebarProps) {
   const { clientes, clienteActivo, seleccionarCliente, eliminarCliente } =
     useClientes();
-  const [clientesAbierto, setClientesAbierto] = useState(!collapsed);
+  const [clientesAbierto, setClientesAbierto] = useState(true);
   const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
   const listaRef = useRef<HTMLUListElement>(null);
   const arrowRef = useRef<SVGSVGElement>(null);
   const navigate = useNavigate();
+
+  const { banco } = useBanco();
 
   // ── Acordeón GSAP ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -56,6 +61,9 @@ export default function Sidebar({
     }
   }, [clientesAbierto]);
 
+  useEffect(() => {
+    if (collapsed) setClientesAbierto(false);
+  }, [collapsed]);
   // ── Eliminar con animación GSAP en el elemento de la lista ───────────────
   const handleEliminar = (id: string, liEl: HTMLLIElement) => {
     gsap.to(liEl, {
@@ -77,23 +85,23 @@ export default function Sidebar({
     <aside
       className={`${
         collapsed ? 'w-16' : 'w-64'
-      } bg-bg-card border-r border-border-base flex flex-col transition-all duration-300`}
-      style={{ transition: '0.3s' }}
+      } bg-bg-sidebar border-r border-border-base flex flex-col transition-all duration-300`}
     >
       {/* Logo */}
-      <div className='h-16 flex items-center px-4 border-b border-border-base'>
+      <div className='h-16 flex items-center px-4 border-b border-border-base pl-6'>
         {collapsed ? (
-          <div className='w-8 h-8 bg-accent rounded-lg flex items-center justify-center mx-auto'>
-            <TrendingUp className='w-5 h-5 text-white' />
+          <div className='mx-auto'>
+            <BancoLogoSm banco={banco} size={banco.size} />
           </div>
         ) : (
           <div className='flex items-center gap-2'>
-            <div className='w-8 h-8 bg-accent rounded-lg flex items-center justify-center'>
-              <TrendingUp className='w-5 h-5 text-white' />
-            </div>
-            <span className='font-semibold text-lg text-text-primary'>
-              WealthWatcher
-            </span>
+            <BancoLogoLg banco={banco} size={banco.size} />
+            {/* Solo WealthView muestra el nombre de la app */}
+            {banco.id === 'default' && (
+              <span className='font-semibold text-lg text-text-primary'>
+                WealthView
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -102,10 +110,7 @@ export default function Sidebar({
       <nav className='flex-1 p-3 overflow-hidden'>
         <div className='mb-1'>
           <button
-            onClick={() => {
-              if (!collapsed) setClientesAbierto(false); // cierra el acordeón al colapsar
-              onToggle();
-            }}
+            onClick={() => !collapsed && setClientesAbierto((v) => !v)}
             className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors'
           >
             <Users className='w-5 h-5 shrink-0' />
@@ -218,7 +223,7 @@ export default function Sidebar({
           ) : (
             <>
               <ChevronLeft className='w-5 h-5' />
-              <span className='text-sm'>Hide</span>
+              <span className='text-sm'>Colapsar</span>
             </>
           )}
         </button>

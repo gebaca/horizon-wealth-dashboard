@@ -7,6 +7,7 @@
 @theme {
   --color-bg-primary: #0b0e14;
   --color-bg-card: #161b22;
+  --color-bg-sidebar: #161b22;
   --color-bg-subtle: #1c2333;
 
   --color-border-base: #2a3142;
@@ -26,6 +27,7 @@
 /* ─── Paleta base en :root ──────────────────────────────────────────────── */
 :root {
   --color-bg-primary: #0b0e14;
+  --color-bg-card: #161b22;
   --color-bg-card: #161b22;
   --color-bg-subtle: #1c2333;
 

@@ -12,6 +12,7 @@ function aplicarTokens(banco: Banco) {
 
   r.style.setProperty('--color-bg-primary', t.bgPrimary);
   r.style.setProperty('--color-bg-card', t.bgCard);
+  r.style.setProperty('--color-bg-sidebar', t.bgSidebar);
   r.style.setProperty('--color-bg-subtle', t.bgSubtle);
   r.style.setProperty('--color-border-base', t.borderBase);
   r.style.setProperty('--color-border-light', t.borderLight);

@@ -7,6 +7,7 @@ export default {
         // Fondos
         'bg-primary': 'var(--color-bg-primary)',
         'bg-card': 'var(--color-bg-card)',
+        'bg-sidebar': 'var(--color-bg-sidebar)',
         'bg-subtle': 'var(--color-bg-subtle)',
 
         // Bordes

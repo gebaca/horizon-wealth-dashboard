@@ -1,44 +1,112 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { BANCOS_LIST } from '../config/Bancos';
+import { createPortal } from 'react-dom';
+import { gsap } from 'gsap';
+import { TrendingUp } from 'lucide-react';
+import { BANCOS_LIST, type Banco } from '../config/Bancos';
 import { useBanco } from '../context/Usebanco';
 
 // ─── Logo del banco ───────────────────────────────────────────────────────────
-// Muestra el logo (svg/webp) si existe, o las iniciales como fallback.
 
-function BancoLogo({
-  id,
-  nombre,
-  logoText,
+export function BancoLogoLg({
+  banco,
+  size = 28,
 }: {
-  id: string;
-  nombre: string;
-  logoText: string;
+  banco: Banco;
+  size?: number;
 }) {
   const [error, setError] = useState(false);
-  const src = `/logos/${'santander'}.svg`; // intenta /logos/santander.svg, /logos/ing.svg, etc.
 
-  if (error || id === 'default') {
+  // WealthView — icono TrendingUp
+  if (banco.id === 'default') {
     return (
-      <span className='w-7 h-7 rounded-md bg-accent/20 flex items-center justify-center text-xs font-semibold text-accent shrink-0'>
-        {logoText}
-      </span>
+      <div
+        className='rounded-lg bg-accent flex items-center justify-center shrink-0'
+        style={{ width: size, height: size }}
+      >
+        <TrendingUp
+          style={{ width: size * 0.6, height: size * 0.6 }}
+          className='text-white'
+        />
+      </div>
     );
   }
 
+  // Banco con logo — img con fallback a iniciales
+  if (banco.logoPath && !error) {
+    return (
+      <img
+        src={banco.logoPath}
+        alt={banco.nombre}
+        width={size}
+        height={size}
+        className='object-contain rounded-md shrink-0'
+        style={{ width: size, height: size }}
+        onError={() => setError(true)}
+      />
+    );
+  }
+
+  // Fallback iniciales
   return (
-    <img
-      src={src}
-      alt={nombre}
-      width={28}
-      height={28}
-      className='w-7 h-7 object-contain rounded-md shrink-0'
-      onError={() => setError(true)}
-    />
+    <span
+      className='rounded-md bg-accent/20 flex items-center justify-center text-xs font-semibold text-accent shrink-0'
+      style={{ width: size, height: size }}
+    >
+      {banco.logoText}
+    </span>
+  );
+}
+export function BancoLogoSm({
+  banco,
+  size = 28,
+}: {
+  banco: Banco;
+  size?: number;
+}) {
+  const [error, setError] = useState(false);
+
+  // WealthView — icono TrendingUp
+  if (banco.id === 'default') {
+    return (
+      <div
+        className='rounded-lg bg-accent flex items-center justify-center shrink-0'
+        style={{ width: size, height: size }}
+      >
+        <TrendingUp
+          style={{ width: size * 0.6, height: size * 0.6 }}
+          className='text-white'
+        />
+      </div>
+    );
+  }
+
+  // Banco con logo — img con fallback a iniciales
+  if (banco.logoPath && !error) {
+    return (
+      <img
+        src={banco.logoPaths}
+        alt={banco.nombre}
+        width={size}
+        height={size}
+        className='object-contain rounded-md shrink-0'
+        style={{ width: size, height: size }}
+        onError={() => setError(true)}
+      />
+    );
+  }
+
+  // Fallback iniciales
+  return (
+    <span
+      className='rounded-md bg-accent/20 flex items-center justify-center text-xs font-semibold text-accent shrink-0'
+      style={{ width: size, height: size }}
+    >
+      {banco.logoText}
+    </span>
   );
 }
 
-// ─── Selector de banco ────────────────────────────────────────────────────────
+// ─── Selector ─────────────────────────────────────────────────────────────────
 
 interface BancoSelectorProps {
   onCambio: (id: string) => void;
@@ -47,92 +115,103 @@ interface BancoSelectorProps {
 export default function BancoSelector({ onCambio }: BancoSelectorProps) {
   const { banco } = useBanco();
   const [abierto, setAbierto] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar al hacer clic fuera
+  const abrir = () => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (rect)
+      setPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    setAbierto(true);
+  };
+
   useEffect(() => {
+    if (!abierto) return;
     const handler = (e: MouseEvent) => {
-      if (!dropdownRef.current?.contains(e.target as Node)) {
+      if (
+        !buttonRef.current?.contains(e.target as Node) &&
+        !menuRef.current?.contains(e.target as Node)
+      )
         setAbierto(false);
-      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, []);
+  }, [abierto]);
 
-  /* // Animación del dropdown
   useEffect(() => {
-    const el = dropdownRef.current?.querySelector('.dropdown-menu');
-    if (!el) return;
-    if (abierto) {
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: -8, scale: 0.97 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'power2.out' }
-      );
-    }
-  }, [abierto]);*/
+    const el = menuRef.current;
+    if (!el || !abierto) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: -6, scale: 0.97 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'power2.out' }
+    );
+  }, [abierto]);
+
+  const allBancos = [
+    {
+      id: 'default',
+      nombre: 'WealthView',
+      logoText: 'WV',
+      logoPath: undefined,
+      fontFamily: '',
+      tokens: banco.id === 'default' ? banco.tokens : ({} as unknown),
+    },
+    ...BANCOS_LIST,
+  ];
+
+  const dropdown = abierto
+    ? createPortal(
+        <div
+          ref={menuRef}
+          style={{
+            position: 'fixed',
+            top: pos.top,
+            right: pos.right,
+            zIndex: 9999,
+          }}
+          className='w-48 bg-bg-card border border-border-base rounded-xl overflow-hidden shadow-xl'
+        >
+          {allBancos.map((b, i) => (
+            <div key={b.id}>
+              {i === 1 && <div className='h-px bg-border-base mx-3' />}
+              <button
+                onClick={() => {
+                  onCambio(b.id);
+                  setAbierto(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-bg-subtle ${
+                  banco.id === b.id
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary'
+                }`}
+              >
+                <BancoLogoSm banco={b as Banco} size={24} />
+                <span>{b.nombre}</span>
+                {banco.id === b.id && (
+                  <span className='ml-auto w-1.5 h-1.5 rounded-full bg-accent' />
+                )}
+              </button>
+            </div>
+          ))}
+        </div>,
+        document.body
+      )
+    : null;
 
   return (
-    <div ref={dropdownRef} className='relative'>
+    <>
+      {/* Botón — solo el logo */}
       <button
-        onClick={() => setAbierto((v) => !v)}
-        className='flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border-base bg-bg-subtle hover:bg-bg-card transition-colors'
+        ref={buttonRef}
+        onClick={abierto ? () => setAbierto(false) : abrir}
+        className='p-1.5 rounded-lg border border-border-base bg-bg-subtle hover:bg-bg-card transition-colors'
+        title={banco.nombre}
       >
-        <BancoLogo
-          id={banco.id}
-          nombre={banco.nombre}
-          logoText={banco.logoText}
-        />
-        <span className='text-sm font-medium text-text-primary'>
-          {banco.nombre}
-        </span>
-        <ChevronDown
-          className='w-3.5 h-3.5 text-text-secondary transition-transform duration-200'
-          style={{ transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        />
+        <BancoLogoSm banco={banco} size={28} />
       </button>
-
-      {abierto && (
-        <div className='dropdown-menu absolute top-full right-0 mt-2 w-52 bg-bg-card border border-border-base rounded-xl overflow-hidden z-50 shadow-lg'>
-          {/* Opción default */}
-          <button
-            onClick={() => {
-              onCambio('default');
-              setAbierto(false);
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-bg-subtle ${
-              banco.id === 'default' ? 'text-accent' : 'text-text-secondary'
-            }`}
-          >
-            <BancoLogo id='default' nombre='WealthView' logoText='WV' />
-            <span>WealthView</span>
-          </button>
-
-          <div className='h-px bg-border-base mx-3' />
-
-          {BANCOS_LIST.map((b) => (
-            <button
-              key={b.id}
-              onClick={() => {
-                onCambio(b.id);
-                setAbierto(false);
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-bg-subtle ${
-                banco.id === b.id
-                  ? 'text-accent font-medium'
-                  : 'text-text-secondary'
-              }`}
-            >
-              <BancoLogo id={b.id} nombre={b.nombre} logoText={b.logoText} />
-              <span>{b.nombre}</span>
-              {banco.id === b.id && (
-                <span className='ml-auto w-1.5 h-1.5 rounded-full bg-accent' />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+      {dropdown}
+    </>
   );
 }
