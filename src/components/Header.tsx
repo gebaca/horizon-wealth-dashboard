@@ -17,7 +17,7 @@ export default function Header({
   const cambiarBanco = useBancoTransicion();
 
   return (
-    <header className='h-16 bg-bg-card border-b border-border-base flex items-center justify-between px-6'>
+    <header className='h-16 bg-bg-header border-b border-border-base flex items-center justify-between px-6'>
       {/* Título */}
       <div>
         <h1 className='text-lg font-semibold text-text-primary'>
@@ -44,7 +44,7 @@ export default function Header({
             className={`relative z-10 flex items-center justify-center gap-1.5 w-1/2 h-full text-sm font-medium transition-colors duration-250 ${
               currency === 'EUR'
                 ? 'text-white'
-                : 'text-text-secondary hover:text-text-primary'
+                : 'text-text-primary hover:text-text-muted'
             }`}
           >
             <Euro className='w-3.5 h-3.5' />
@@ -55,7 +55,7 @@ export default function Header({
             className={`relative z-10 flex items-center justify-center gap-1.5 w-1/2 h-full text-sm font-medium transition-colors duration-250 ${
               currency === 'USD'
                 ? 'text-white'
-                : 'text-text-secondary hover:text-text-primary'
+                : 'text-text-primary hover:text-text-muted'
             }`}
           >
             <DollarSign className='w-3.5 h-3.5' />
@@ -65,7 +65,7 @@ export default function Header({
 
         {/* Notificaciones */}
         <button className='relative p-2 text-text-secondary hover:text-text-primary hover:bg-bg-subtle rounded-lg transition-colors'>
-          <Bell className='w-5 h-5' />
+          <Bell className='w-5 h-5 text-text-primary' />
           <span className='absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full' />
         </button>
 

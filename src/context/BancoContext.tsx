@@ -12,6 +12,7 @@ function aplicarTokens(banco: Banco) {
 
   r.style.setProperty('--color-bg-primary', t.bgPrimary);
   r.style.setProperty('--color-bg-card', t.bgCard);
+  r.style.setProperty('--color-bg-header', t.bgHeader);
   r.style.setProperty('--color-bg-sidebar', t.bgSidebar);
   r.style.setProperty('--color-bg-subtle', t.bgSubtle);
   r.style.setProperty('--color-border-base', t.borderBase);
@@ -20,6 +21,7 @@ function aplicarTokens(banco: Banco) {
   r.style.setProperty('--color-accent-muted', t.accentMuted);
   r.style.setProperty('--color-success', t.success);
   r.style.setProperty('--color-danger', t.danger);
+  r.style.setProperty('--color-text-sidebar', t.textSidebar);
   r.style.setProperty('--color-text-primary', t.textPrimary);
   r.style.setProperty('--color-text-secondary', t.textSecondary);
   r.style.setProperty('--color-text-muted', t.textMuted);

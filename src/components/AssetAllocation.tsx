@@ -49,7 +49,7 @@ export default function AssetAllocation({ data }: AssetAllocationProps) {
                 className='w-3 h-3 rounded-full'
                 style={{ backgroundColor: item.color }}
               />
-              <span className='text-slate-300 text-sm truncate max-w-35'>
+              <span className='text-neutral-600 text-sm truncate max-w-35'>
                 {item.name}
               </span>
             </div>

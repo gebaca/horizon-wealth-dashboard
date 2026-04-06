@@ -7,6 +7,7 @@ export default {
         // Fondos
         'bg-primary': 'var(--color-bg-primary)',
         'bg-card': 'var(--color-bg-card)',
+        'bg-header': 'var(--color-bg-header)',
         'bg-sidebar': 'var(--color-bg-sidebar)',
         'bg-subtle': 'var(--color-bg-subtle)',
 
@@ -24,6 +25,7 @@ export default {
 
         // Texto
         'text-primary': 'var(--color-text-primary)',
+        'text-sidebar': 'var(--color-text-sidebar)',
         'text-secondary': 'var(--color-text-secondary)',
         'text-muted': 'var(--color-text-muted)',
       },

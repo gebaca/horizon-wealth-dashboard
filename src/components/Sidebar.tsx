@@ -29,19 +29,117 @@ export default function Sidebar({
 }: SidebarProps) {
   const { clientes, clienteActivo, seleccionarCliente, eliminarCliente } =
     useClientes();
-  const [clientesAbierto, setClientesAbierto] = useState(true);
-  const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
-  const listaRef = useRef<HTMLUListElement>(null);
-  const arrowRef = useRef<SVGSVGElement>(null);
-  const navigate = useNavigate();
-
   const { banco } = useBanco();
 
-  // ── Acordeón GSAP ────────────────────────────────────────────────────────
+  const [clientesAbierto, setClientesAbierto] = useState(!collapsed);
+  const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
+
+  const listaRef = useRef<HTMLUListElement>(null);
+  const arrowRef = useRef<SVGSVGElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const prevCollapsed = useRef(collapsed);
+  const navigate = useNavigate();
+
+  const logoSmRef = useRef<HTMLDivElement>(null);
+  const logoLgRef = useRef<HTMLDivElement>(null);
+
+  // ── Animación colapso/expansión del sidebar ──────────────────────────────
+  useEffect(() => {
+    if (prevCollapsed.current === collapsed) return;
+    prevCollapsed.current = collapsed;
+
+    const nav = navRef.current;
+    const logoSm = logoSmRef.current;
+    const logoLg = logoLgRef.current;
+    if (!nav) return;
+
+    if (collapsed) {
+      // Cierra el acordeón
+      const lista = listaRef.current;
+      const arrow = arrowRef.current;
+      if (lista)
+        gsap.to(lista, {
+          height: 0,
+          opacity: 0,
+          duration: 0.35,
+          ease: 'power2.in',
+        });
+      if (arrow) gsap.to(arrow, { rotation: -90, duration: 0.2 });
+
+      // Fade out texto
+      gsap.to(nav.querySelectorAll('span, p'), {
+        opacity: 0,
+        x: -6,
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: () => setClientesAbierto(false),
+      });
+
+      // Crossfade logos: lg → sm
+      if (logoLg)
+        gsap.to(logoLg, {
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.3,
+          ease: 'power2.in',
+        });
+      if (logoSm)
+        gsap.fromTo(
+          logoSm,
+          { opacity: 0, scale: 1.1 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.35,
+            ease: 'power2.out',
+            delay: 0.15,
+          }
+        );
+    } else {
+      // Fade in texto al expandir
+      gsap.fromTo(
+        nav.querySelectorAll('span, p'),
+        { opacity: 0, x: -6 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.3,
+          ease: 'power2.out',
+          delay: 0.2,
+          stagger: 0.04,
+        }
+      );
+
+      // Crossfade logos: sm → lg
+      if (logoSm)
+        gsap.to(logoSm, {
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.3,
+          ease: 'power2.in',
+        });
+      if (logoLg)
+        gsap.fromTo(
+          logoLg,
+          { opacity: 0, scale: 1.1 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.35,
+            ease: 'power2.out',
+            delay: 0.2,
+          }
+        );
+    }
+  }, [collapsed]);
+
+  // ── Animación acordeón clientes ──────────────────────────────────────────
   useEffect(() => {
     const lista = listaRef.current;
     const arrow = arrowRef.current;
     if (!lista || !arrow) return;
+
     if (clientesAbierto) {
       gsap.to(lista, {
         height: 'auto',
@@ -61,10 +159,7 @@ export default function Sidebar({
     }
   }, [clientesAbierto]);
 
-  useEffect(() => {
-    if (collapsed) setClientesAbierto(false);
-  }, [collapsed]);
-  // ── Eliminar con animación GSAP en el elemento de la lista ───────────────
+  // ── Eliminar cliente con animación ───────────────────────────────────────
   const handleEliminar = (id: string, liEl: HTMLLIElement) => {
     gsap.to(liEl, {
       opacity: 0,
@@ -81,33 +176,47 @@ export default function Sidebar({
     });
   };
 
+  // ── Botón de colapsar — cierra acordeón en el mismo evento ───────────────
+  const handleToggle = () => {
+    if (!collapsed) setClientesAbierto(false);
+    onToggle();
+  };
+
   return (
     <aside
+      ref={sidebarRef}
       className={`${
         collapsed ? 'w-16' : 'w-64'
-      } bg-bg-sidebar border-r border-border-base flex flex-col transition-all duration-300`}
+      } bg-bg-card border-r border-border-base flex flex-col transition-all duration-300`}
     >
-      {/* Logo */}
-      <div className='h-16 flex items-center px-4 border-b border-border-base pl-6'>
-        {collapsed ? (
-          <div className='mx-auto'>
-            <BancoLogoSm banco={banco} size={banco.size} />
-          </div>
-        ) : (
-          <div className='flex items-center gap-2'>
-            <BancoLogoLg banco={banco} size={banco.size} />
-            {/* Solo WealthView muestra el nombre de la app */}
-            {banco.id === 'default' && (
-              <span className='font-semibold text-lg text-text-primary'>
-                WealthView
-              </span>
-            )}
-          </div>
-        )}
+      {/* Logo — ambas versiones siempre montadas, cruzadas con GSAP */}
+      <div className='h-16 flex items-center px-4 border-b border-border-base relative'>
+        {/* Logo pequeño (colapsado) */}
+        <div
+          ref={logoSmRef}
+          className='absolute left-4'
+          style={{ opacity: collapsed ? 1 : 0 }}
+        >
+          <BancoLogoSm banco={banco} size={24} />
+        </div>
+
+        {/* Logo grande + nombre (expandido) */}
+        <div
+          ref={logoLgRef}
+          className='flex items-center gap-2'
+          style={{ opacity: collapsed ? 0 : 1 }}
+        >
+          <BancoLogoLg banco={banco} size={110} />
+          {banco.id === 'default' && (
+            <span className='font-semibold text-lg text-text-primary'>
+              WealthView
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className='flex-1 p-3 overflow-hidden'>
+      <nav ref={navRef} className='flex-1 p-3 overflow-hidden'>
         <div className='mb-1'>
           <button
             onClick={() => !collapsed && setClientesAbierto((v) => !v)}
@@ -133,7 +242,6 @@ export default function Sidebar({
               {clientes.map((c) => (
                 <li key={c.id} className='group'>
                   {confirmandoId === c.id ? (
-                    /* ── Estado de confirmación ── */
                     <div className='flex items-center gap-1 px-3 py-2 rounded-lg bg-danger/10 border border-danger/20'>
                       <span className='text-xs text-danger flex-1'>
                         ¿Eliminar?
@@ -158,7 +266,6 @@ export default function Sidebar({
                       </button>
                     </div>
                   ) : (
-                    /* ── Estado normal ── */
                     <div className='flex items-center gap-1'>
                       <button
                         onClick={() => {
@@ -178,8 +285,6 @@ export default function Sidebar({
                           {c.nombre.split(' ')[0]}
                         </span>
                       </button>
-
-                      {/* Botón eliminar — solo visible en hover */}
                       <button
                         onClick={() => setConfirmandoId(c.id)}
                         className='opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 shrink-0'
@@ -191,7 +296,6 @@ export default function Sidebar({
                   )}
                 </li>
               ))}
-
               <li>
                 <button
                   onClick={onNuevoCliente}
@@ -205,7 +309,6 @@ export default function Sidebar({
           )}
         </div>
 
-        {/* Opciones */}
         <button className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors mt-1'>
           <Settings className='w-5 h-5 shrink-0' />
           {!collapsed && <span className='text-sm font-medium'>Opciones</span>}
@@ -215,16 +318,13 @@ export default function Sidebar({
       {/* Colapsar */}
       <div className='p-3 border-t border-border-base'>
         <button
-          onClick={onToggle}
+          onClick={handleToggle}
           className='w-full flex items-center justify-center gap-2 px-3 py-2 text-text-secondary hover:text-text-primary hover:bg-bg-subtle rounded-lg transition-colors'
         >
           {collapsed ? (
             <ChevronRight className='w-5 h-5' />
           ) : (
-            <>
-              <ChevronLeft className='w-5 h-5' />
-              <span className='text-sm'>Colapsar</span>
-            </>
+            <ChevronLeft className='w-5 h-5' />
           )}
         </button>
       </div>

@@ -3,6 +3,7 @@
 export interface BancoTokens {
   bgPrimary: string;
   bgCard: string;
+  bgHeader: string;
   bgSidebar: string;
   bgSubtle: string;
   borderBase: string;
@@ -12,6 +13,7 @@ export interface BancoTokens {
   success: string;
   danger: string;
   textPrimary: string;
+  textSidebar: string;
   textSecondary: string;
   textMuted: string;
 }
@@ -39,6 +41,7 @@ export const BANCO_DEFAULT: Banco = {
   tokens: {
     bgPrimary: '#0b0e14',
     bgCard: '#161b22',
+    bgHeader: '#161b22',
     bgSidebar: '#161b22',
     bgSubtle: '#1c2333',
     borderBase: '#2a3142',
@@ -48,6 +51,7 @@ export const BANCO_DEFAULT: Banco = {
     success: '#10b981',
     danger: '#ef4444',
     textPrimary: '#f1f5f9',
+    textSidebar: '#f1f5f9',
     textSecondary: '#94a3b8',
     textMuted: '#4b5563',
   },
@@ -68,6 +72,7 @@ const SANTANDER: Banco = {
   tokens: {
     bgPrimary: '#F5F7F9', // Gris "Hielo" para el fondo general
     bgCard: '#FFFFFF', // Blanco puro para resaltar los datos
+    bgHeader: '#FFFFFF',
     bgSidebar: '#1A1A1A', // Casi negro para un menú lateral premium
     bgSubtle: '#F0F2F5', // Para hovers o secciones secundarias
     borderBase: '#E2E8F0', // Gris claro para separar cards
@@ -77,6 +82,7 @@ const SANTANDER: Banco = {
     success: '#16A34A',
     danger: '#DC2626',
     textPrimary: '#1A202C', // Casi negro
+    textSidebar: '#FFFFFF', // Texto para el sidebar
     textSecondary: '#4A5568', // Gris oscuro para labels
     textMuted: '#A0AEC0', // Gris suave para ISINs o fechas
   },
@@ -96,6 +102,7 @@ const ING: Banco = {
   tokens: {
     bgPrimary: '#FFFFFF', // Blanco total (típico de ING)
     bgCard: '#F7F9FC', // Cards con un ligerísimo tono azulado/gris
+    bgHeader: '#FFFFFF',
     bgSidebar: '#001E61', // Azul marino profundo oficial de ING
     bgSubtle: '#EBF1FA',
     borderBase: '#CBD5E0',
@@ -105,6 +112,7 @@ const ING: Banco = {
     success: '#16A34A',
     danger: '#E53E3E',
     textPrimary: '#001E61', // Texto principal en azul marino para ING
+    textSidebar: '#FFFFFF', // Texto para el sidebar
     textSecondary: '#4A5568',
     textMuted: '#718096',
   },
