@@ -187,10 +187,10 @@ export default function Sidebar({
       ref={sidebarRef}
       className={`${
         collapsed ? 'w-16' : 'w-64'
-      } bg-bg-card border-r border-border-base flex flex-col transition-all duration-300`}
+      } bg-bg-sidebar border-r border-border-base flex flex-col transition-all duration-300`}
     >
       {/* Logo — ambas versiones siempre montadas, cruzadas con GSAP */}
-      <div className='h-16 flex items-center px-4 border-b border-border-base relative'>
+      <div className='h-16 flex items-center px-4 border-b border-border-base relative bg-bg-card'>
         {/* Logo pequeño (colapsado) */}
         <div
           ref={logoSmRef}
@@ -220,7 +220,7 @@ export default function Sidebar({
         <div className='mb-1'>
           <button
             onClick={() => !collapsed && setClientesAbierto((v) => !v)}
-            className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors'
+            className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sidebar hover:bg-bg-subtle hover:text-text-primary transition-colors'
           >
             <Users className='w-5 h-5 shrink-0' />
             {!collapsed && (
