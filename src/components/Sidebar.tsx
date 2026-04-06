@@ -144,18 +144,18 @@ export default function Sidebar({
       gsap.to(lista, {
         height: 'auto',
         opacity: 1,
-        duration: 0.35,
+        duration: 0.1,
         ease: 'power2.out',
       });
-      gsap.to(arrow, { rotation: 0, duration: 0.25, ease: 'power2.out' });
+      gsap.to(arrow, { rotation: 0, duration: 0.1, ease: 'power2.out' });
     } else {
       gsap.to(lista, {
         height: 0,
         opacity: 0,
-        duration: 0.3,
+        duration: 0.1,
         ease: 'power2.in',
       });
-      gsap.to(arrow, { rotation: -90, duration: 0.25, ease: 'power2.in' });
+      gsap.to(arrow, { rotation: -90, duration: 0.1, ease: 'power2.in' });
     }
   }, [clientesAbierto]);
 
@@ -206,7 +206,7 @@ export default function Sidebar({
           className='flex items-center gap-2'
           style={{ opacity: collapsed ? 0 : 1 }}
         >
-          <BancoLogoLg banco={banco} size={110} />
+          <BancoLogoLg banco={banco} size={banco.size} />
           {banco.id === 'default' && (
             <span className='font-semibold text-lg text-text-primary'>
               WealthView

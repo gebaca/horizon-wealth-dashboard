@@ -58,7 +58,7 @@ export function BancoLogoLg({
 }
 export function BancoLogoSm({
   banco,
-  size = 28,
+  size = 14,
 }: {
   banco: Banco;
   size?: number;

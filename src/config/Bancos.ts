@@ -37,7 +37,7 @@ export const BANCO_DEFAULT: Banco = {
   nombre: 'WealthView',
   logoText: 'WV',
   fontFamily: 'Inter, sans-serif',
-  size: 32,
+  size: 20,
   tokens: {
     bgPrimary: '#0b0e14',
     bgCard: '#161b22',
